@@ -34,3 +34,30 @@ def update_city(db: Session, city_id: int, city: schemas.CityCreate):
         db.commit()
         db.refresh(db_city)
     return db_city
+
+
+def delete_city(db: Session, city_id: int):
+    db_city = get_city(db, city_id)
+    if db_city:
+        db.delete(db_city)
+        db.commit()
+    return db_city
+
+
+def create_temperature(db: Session, city_id: int, temperature: float):
+    db_temp = models.Temperature(
+        city_id=city_id,
+        temperature=temperature,
+        date_time=datetime.utcnow()
+    )
+    db.add(db_temp)
+    db.commit()
+    db.refresh(db_temp)
+    return db_temp
+
+
+def get_temperatures(db: Session, city_id: int = None) -> List[models.Temperature]:
+    query = db.query(models.Temperature)
+    if city_id:
+        query = query.filter(models.Temperature.city_id == city_id)
+    return query.all()
